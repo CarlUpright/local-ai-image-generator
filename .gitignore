@@ -1,0 +1,17 @@
+# Modele (lourd, ~7 GB)
+models/
+
+# Environnement Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Images generees
+outputs/
+
+# Divers
+.DS_Store
+Thumbs.db
+*.log
