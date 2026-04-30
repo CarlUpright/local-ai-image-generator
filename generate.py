@@ -4,7 +4,7 @@ import torch
 from diffusers import AutoPipelineForText2Image
 from pathlib import Path
 from datetime import datetime
-from download_model import download, MODEL_DIR, MODEL_ID
+from download_model import download, is_downloaded, MODEL_DIR, MODEL_ID
 
 OUTPUT_DIR = Path("outputs")
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -21,15 +21,15 @@ def main():
     parser.add_argument("--seed", type=int, default=-1, help="Seed pour la reproductibilite (-1 = aleatoire)")
     args = parser.parse_args()
 
-    if not MODEL_DIR.exists() or not any(MODEL_DIR.iterdir()):
+    if not is_downloaded():
         download()
 
     print("Chargement du modele en VRAM...")
-    source = str(MODEL_DIR)
     pipe = AutoPipelineForText2Image.from_pretrained(
-        source,
+        str(MODEL_DIR),
         torch_dtype=torch.float16,
         use_safetensors=True,
+        variant="fp16",
         local_files_only=True,
     )
     pipe = pipe.to("cuda")

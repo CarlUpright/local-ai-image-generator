@@ -3,7 +3,7 @@ import gradio as gr
 from diffusers import AutoPipelineForText2Image
 from pathlib import Path
 from datetime import datetime
-from download_model import download, MODEL_DIR, MODEL_ID
+from download_model import download, is_downloaded, MODEL_DIR, MODEL_ID
 
 OUTPUT_DIR = Path("outputs")
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -16,17 +16,17 @@ def load_model():
     if pipe is not None:
         return
 
-    if not MODEL_DIR.exists() or not any(MODEL_DIR.iterdir()):
+    if not is_downloaded():
         print("Modele absent, lancement du telechargement...")
         download()
 
     print("Chargement du modele en memoire GPU...")
-    source = str(MODEL_DIR) if MODEL_DIR.exists() else MODEL_ID
     pipe = AutoPipelineForText2Image.from_pretrained(
-        source,
+        str(MODEL_DIR),
         torch_dtype=torch.float16,
         use_safetensors=True,
-        local_files_only=(source != MODEL_ID),
+        variant="fp16",
+        local_files_only=True,
     )
     pipe = pipe.to("cuda")
     pipe.enable_attention_slicing()
@@ -36,7 +36,7 @@ def load_model():
 def model_status():
     if pipe is not None:
         return "Modele charge en VRAM — pret a generer"
-    if MODEL_DIR.exists() and any(MODEL_DIR.iterdir()):
+    if is_downloaded():
         return "Modele telecharge — sera charge au premier clic sur Generer"
     return "Modele non telecharge — lancer download_model.py ou cliquer sur Generer"
 
