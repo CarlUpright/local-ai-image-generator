@@ -11,6 +11,9 @@ __pycache__/
 # Images generees
 outputs/
 
+# Token secret (ne jamais committer)
+.env
+
 # Divers
 .DS_Store
 Thumbs.db
